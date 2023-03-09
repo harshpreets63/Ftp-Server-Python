@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Simple FTP Server</title>
+    <link rel="shortcut icon" type="image/x-icon" href="https://graph.org/file/d01f7bd7e180e4021b194.png">
+    <style>
+        /* Reset default browser styles */
+    *{
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Global styles */
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      background-color: #f2f2f2;
+      color: #333;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px 20px;
+    }
+
+    h1 {
+      color: #007bff;
+      font-size: 2.5rem;
+      margin-bottom: 9px;
+      margin-top: 84px;
+      text-align: center;
+    }
+
+    /* File list styles */
+    .file {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 242px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 13px;
+    }
+
+    .file:hover {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .file-details {
+      display: flex;
+      align-items: center;
+
+    }
+
+    .copy-icon {
+      font-size: 1.5rem;
+      color: #666;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+
+    .copy-icon:hover {
+      color: #333;
+    }
+
+    .file a {
+      font-size: 1.2rem;
+      color: #2196f3;
+      text-decoration: none;
+      margin-right: 10px;
+      transition: all 0.2s ease;
+      word-break: break-all;
+    }
+
+    .file a:hover {
+      color: #0d47a1;
+    }
+
+    .file-size {
+      font-size: 1rem;
+      color: #999;
+      margin-left: auto;
+    }
+
+    .delete-checkbox {
+      display: flex;
+      align-items: center;
+    }
+
+    .delete-checkbox input[type="checkbox"] {
+      margin-right: 10px;
+      cursor: pointer;
+    }
+
+    .delete-checkbox label.delete-label {
+      display: inline-block;
+      height: 14px;
+      width: 14px;
+      border-radius: 50%;
+      border: 1px solid #ccc;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .delete-checkbox label.delete-label:before {
+      content: '';
+      display: block;
+      height: 6px;
+      width: 6px;
+      border-radius: 50%;
+      background-color: transparent;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: all 0.2s ease;
+    }
+  
+    .delete-checkbox input[type="checkbox"]:checked ~ label.delete-label:before {
+    background-color: #007bff;
+    opacity: 1;
+    }
+  
+    .delete-selected {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    }
+  
+    .delete-btn {
+    font-size: 1.2rem;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    }
+  
+    .delete-btn:hover {
+    background-color: #0062cc;
+     }
+
+    .copied {
+            color: #ff0077 !important;
+    }
+    p {
+        font-size: 1.5rem;
+        text-align: center;
+        color: #007bff
+    }
+
+    </style>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" />
+</head>
+<body>
+	<header>
+		<h1>FTP Server</h1>
+        <p>Number of files: {{ Avail_Files }}</p>
+        <p>Storage Available: {{ Avail_Storage }}</p>
+	</header>
+	<main>
+    <form action="{{ url_for('delete_files') }}" method="POST">
+		<section class="container">
+			{% for Name, Links, Path, Size in data %}
+			<div class="file">
+				<div class="file-details">
+					<i class="far fa-copy copy-icon" data-clipboard-text="{{ request.host_url }}{{ Links }}"></i>
+					<a href="{{ Links }}">{{ Name }}</a>
+					<span class="file-size">{{ Size }}</span>
+				</div>
+				<div class="delete-checkbox">
+					<input type="checkbox" name="delete_file" value="{{ Path }}">
+					<label class="delete-label"></label>
+				</div>
+			</div>
+			{% endfor%}
+			<div class="delete-selected">
+				<button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete the selected files/folders?');">Delete Selected Files/Folders</button>
+			</div>
+		</section>
+	</main>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+	<script>
+        new ClipboardJS('.copy-icon');
+        document.addEventListener('DOMContentLoaded', function() {
+        new ClipboardJS('.copy-icon');
+        var clipboardIcons = document.querySelectorAll('.copy-icon');
+        clipboardIcons.forEach(function(icon) {
+            icon.addEventListener('click', function() {
+                icon.classList.add('copied');
+                setTimeout(function() {
+                    icon.classList.remove('copied');
+            }, 1000);
+        });
+    });
+});
+    </script>
+</body>
+</html>
